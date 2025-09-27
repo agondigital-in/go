@@ -1,9 +1,5 @@
 <?php
-require_once 'config.php';
-
-// Check server requirements
-$requirements = checkServerRequirements();
-$canUpload = !in_array(false, $requirements, true);
+session_start();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -11,76 +7,82 @@ $canUpload = !in_array(false, $requirements, true);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Upload</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .preview {
+            max-width: 300px;
+            margin: 20px 0;
+            display: none;
+        }
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h2>Upload Image</h2>
-        <?php if (!$canUpload): ?>
-            <div class="error-message">
-                <h3>Server Configuration Issues:</h3>
-                <ul>
-                    <?php if (!$requirements['php_version']): ?>
-                        <li>PHP version 7.4 or higher is required</li>
-                    <?php endif; ?>
-                    <?php if (!$requirements['image_extension']): ?>
-                        <li>GD or Imagick extension is required</li>
-                    <?php endif; ?>
-                    <?php if (!$requirements['upload_writable']): ?>
-                        <li>Upload directory is not writable</li>
-                    <?php endif; ?>
-                    <?php if (!$requirements['file_uploads']): ?>
-                        <li>File uploads are disabled in PHP configuration</li>
-                    <?php endif; ?>
-                    <?php if (!$requirements['post_max_size'] || !$requirements['upload_max_filesize']): ?>
-                        <li>PHP file upload size limits are too low</li>
-                    <?php endif; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
+        <h2>Image Upload</h2>
         
-        <?php if (isset($_GET['upload'])): ?>
-            <div class="message <?php echo $_GET['upload'] === 'success' ? 'success' : 'error'; ?>">
-                <?php
-                switch ($_GET['upload']) {
-                    case 'success':
-                        echo "File uploaded successfully!";
-                        break;
-                    case 'failed':
-                        echo "Failed to upload file.";
-                        break;
-                    case 'toolarge':
-                        echo "File is too large (max 5MB).";
-                        break;
-                    case 'invalidtype':
-                        echo "Invalid file type. Allowed types: " . implode(', ', ALLOWED_TYPES);
-                        break;
-                    default:
-                        echo "An error occurred.";
-                }
-                ?>
-            </div>
-        <?php endif; ?>
-
-        <form action="upload.php" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <input type="file" name="image" accept="image/*" required <?php echo !$canUpload ? 'disabled' : ''; ?>>
-            </div>
-            <button type="submit" name="submit" <?php echo !$canUpload ? 'disabled' : ''; ?>>Upload Image</button>
-        </form>
-        
-        <div class="preview">
-            <?php
-            $files = glob(UPLOAD_DIR . DIRECTORY_SEPARATOR . "*.*");
-            if ($files) {
-                echo "<h3>Uploaded Images:</h3>";
-                foreach ($files as $file) {
-                    $relativePath = str_replace(__DIR__ . DIRECTORY_SEPARATOR, '', $file);
-                    echo "<img src='$relativePath' width='200' alt='Uploaded image'>";
-                }
+        <?php
+        if (isset($_SESSION['message'])) {
+            $messageClass = isset($_SESSION['error']) && $_SESSION['error'] ? 'error' : 'success';
+            echo '<div class="message ' . $messageClass . '">' . $_SESSION['message'] . '</div>';
+            if (isset($_SESSION['uploaded_image'])) {
+                echo '<img src="uploads/' . $_SESSION['uploaded_image'] . '" alt="Uploaded image" style="max-width: 300px;">';
             }
-            ?>
-        </div>
+            unset($_SESSION['message']);
+            unset($_SESSION['error']);
+            unset($_SESSION['uploaded_image']);
+        }
+        ?>
+
+        <form action="upload_handler.php" method="POST" enctype="multipart/form-data">
+            <div>
+                <label for="image">Select Image (JPG, JPEG, PNG, GIF only):</label>
+                <input type="file" id="image" name="image" accept="image/*" onchange="previewImage(this);">
+            </div>
+            <div>
+                <img id="preview" src="#" alt="Preview" class="preview">
+            </div>
+            <button type="submit">Upload Image</button>
+        </form>
     </div>
+
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('preview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.src = '#';
+                preview.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>
