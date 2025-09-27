@@ -1,17 +1,22 @@
 {
-  "name": "php-image-upload",
+  "name": "webnetics-affiliate-marketing",
   "version": "1.0.0",
-  "description": "PHP Image Upload Application",
-  "main": "index.php",
+  "description": "Professional Affiliate Marketing Agency Website",
+  "main": "index.html",
   "scripts": {
-    "start": "php -S 0.0.0.0:${PORT:-3010}",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "live-server --port=3000",
+    "dev": "live-server --port=3000 --open=/index.html"
   },
-  "engines": {
-    "php": "^8.0.0"
-  },
-  "dependencies": {},
-  "keywords": ["php", "upload", "images"],
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "affiliate",
+    "marketing",
+    "Agencies",
+    "digital",
+    "performance"
+  ],
+  "author": "Webnetics Team",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
 }
