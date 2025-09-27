@@ -6,7 +6,7 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Upload</title>
+    <title>Image Upload !</title>
     <style>
         .container {
             max-width: 600px;
@@ -39,7 +39,7 @@ session_start();
 </head>
 <body>
     <div class="container">
-        <h2>Image Upload</h2>
+        <h2>Image Upload !</h2>
         
         <?php
         if (isset($_SESSION['message'])) {

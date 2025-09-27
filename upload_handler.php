@@ -57,11 +57,14 @@ if (!in_array($mimeType, $allowedTypes)) {
 // Generate unique filename
 $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
 $filename = uniqid() . '-' . time() . '.' . $extension;
-$uploadPath = __DIR__ . '/uploads/' . $filename;
+// Get upload directory from environment variable or use default
+$uploadDir = getenv('UPLOAD_PATH') ?: __DIR__ . '/uploads';
+$uploadPath = rtrim($uploadDir, '/') . '/' . $filename;
 
 // Create uploads directory if it doesn't exist
-if (!file_exists(__DIR__ . '/uploads')) {
-    mkdir(__DIR__ . '/uploads', 0777, true);
+if (!file_exists($uploadDir)) {
+    mkdir($uploadDir, 0777, true);
+    chmod($uploadDir, 0777);
 }
 
 // Try to move the uploaded file
