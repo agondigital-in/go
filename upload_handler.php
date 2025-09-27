@@ -1,6 +1,23 @@
 <?php
 session_start();
 
+$uploadDir = '/app/uploads/';
+
+// Ensure directory exists and is writable
+if (!is_dir($uploadDir)) {
+    mkdir($uploadDir, 0755, true);
+}
+
+// Try to make it writable if it isn't
+if (!is_writable($uploadDir)) {
+    chmod($uploadDir, 0755);
+    // If still not writable, try 0777 (less secure but works)
+    if (!is_writable($uploadDir)) {
+        chmod($uploadDir, 0777);
+    }
+}
+
+
 // Set maximum file size (5MB)
 $maxFileSize = 5 * 1024 * 1024; // 5MB in bytes
 
