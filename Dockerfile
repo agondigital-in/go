@@ -41,9 +41,22 @@ chown -R 33:33 /app/uploads\n\
 apache2-foreground' > /usr/local/bin/docker-entrypoint.sh \
     && chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Configure Apache to listen on port 3011
-RUN sed -i 's/Listen 80/Listen 3011/g' /etc/apache2/ports.conf \
-    && sed -i 's/<VirtualHost \*:80>/<VirtualHost *:3011>/g' /etc/apache2/sites-available/000-default.conf
+# Configure Apache
+RUN { \
+    echo '<VirtualHost *:3011>'; \
+    echo '    ServerAdmin webmaster@localhost'; \
+    echo '    DocumentRoot /app'; \
+    echo '    DirectoryIndex index.php index.html'; \
+    echo '    <Directory /app>'; \
+    echo '        Options Indexes FollowSymLinks'; \
+    echo '        AllowOverride All'; \
+    echo '        Require all granted'; \
+    echo '    </Directory>'; \
+    echo '    ErrorLog ${APACHE_LOG_DIR}/error.log'; \
+    echo '    CustomLog ${APACHE_LOG_DIR}/access.log combined'; \
+    echo '</VirtualHost>'; \
+} > /etc/apache2/sites-available/000-default.conf \
+    && echo 'Listen 3011' > /etc/apache2/ports.conf
 
 # Expose port 3011
 EXPOSE 3011
